@@ -3,16 +3,36 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import font
 import webbrowser
-import sys
+import sys, os
 import random
 
 filename = ""
 fileinput = ""
 fontsize = 10
+fontt="Arial"
 
 bg = "#ffffff"
 fg = "#000000"
 
+if "python" in sys.argv[0]:
+    os.system("pip install notify-py")
+if sys.platform == "linux":
+    print('Please install libnotify for normal work: "sudo apt install libnotify"')
+
+print(os.path.dirname(__file__))
+os.chdir(os.path.dirname(__file__))
+
+from notifypy import Notify
+
+
+
+def send_not(title, message):
+    notification = Notify()
+    notification.title = title
+    notification.message = message
+    notification.icon = "masha.png"
+
+    notification.send()
 
 def getinput():
     global fileinput
@@ -63,6 +83,7 @@ def savefile(*e):
         file = open(filename, "w")
         file.write(fileinput)
         file.close()
+        send_not("Masha", "File Saved!")
     else:
         filename = filedialog.asksaveasfilename(title="Save")
         if filename != "":
@@ -70,6 +91,7 @@ def savefile(*e):
             file = open(filename, "w")
             file.write(fileinput)
             file.close()
+            send_not("Masha", "File Saved!")
 
 
 def newfile(*e):
@@ -107,25 +129,25 @@ def unsaved(event=None):
 def plus(*e):
     global fontsize
     fontsize += 1
-    input_text_area.configure(font=("Arial", fontsize))
+    input_text_area.configure(font=(fontt, fontsize))
 
 
 def minus(*e):
     global fontsize
     if fontsize > 1:
         fontsize -= 1
-        input_text_area.configure(font=("Arial", fontsize))
+        input_text_area.configure(font=(fontt, fontsize))
 
 
 def pm(event):
     global fontsize
     if event.delta > 0:
         fontsize += 1
-        input_text_area.configure(font=("Arial", fontsize))
+        input_text_area.configure(font=(fontt, fontsize))
     elif event.delta < 0:
         if fontsize > 1:
             fontsize -= 1
-            input_text_area.configure(font=("Arial", fontsize))
+            input_text_area.configure(font=(fontt, fontsize))
 
 
 def exitc(*e):
@@ -156,6 +178,7 @@ def tab(arg):
 
 
 def maria(event=None):
+    global fontt
     fontt = random.choice(fonts)
     menu.entryconfig(1, font=(fontt, 12))
     menu.entryconfig(2, font=(fontt, 12))
@@ -213,9 +236,9 @@ root = tk.Tk()
 root.title("Masha")
 root.geometry("650x500")
 root.minsize(300, 150)
+root.iconphoto(False, tk.PhotoImage(file='masha.png'))
 
 fonts = font.families()
-print(random.choice(fonts))
 
 menu = tk.Menu(root)
 
@@ -237,7 +260,8 @@ scrollbar2.pack(side=tk.BOTTOM, fill=tk.X)
 
 input_text_area = tk.Text(root, font=("Arial", 10), undo=True, autoseparators=True, maxundo=-1,
                           yscrollcommand=scrollbar.set,
-                          xscrollcommand=scrollbar2.set)
+                          xscrollcommand=scrollbar2.set,
+                          wrap="none")
 scrollbar.config(command=input_text_area.yview)
 scrollbar2.config(command=input_text_area.xview)
 input_text_area.pack(expand=True, fill='both')
@@ -248,7 +272,7 @@ input_text_area.bind("<BackSpace>", back)
 root.grid_columnconfigure(0, weight=1)
 root.grid_rowconfigure(0, weight=1)
 
-menu.add_command(label="Masha", font='Arial 12 bold', command=maria)
+menu.add_command(label="Masha", font='Arial 12 bold')
 
 file_menu = tk.Menu(menu, tearoff=0)
 file_menu.add_command(label="New", accelerator="Ctrl+N", command=newfile)
@@ -269,7 +293,7 @@ edit_menu.add_separator()
 edit_menu.add_command(label='Select All', underline=7, accelerator='Ctrl+A', command=select_all)
 
 theme_menu = tk.Menu(menu, tearoff=0)
-theme_menu.add_command(label="Font")
+theme_menu.add_command(label="Font", command=maria)
 dark = tk.IntVar(root,0)
 
 theme_menu.add_checkbutton(label="DarkMode", onvalue=1, offvalue=0, variable=dark, command=change_theme)
@@ -278,6 +302,7 @@ about_menu = tk.Menu(menu, tearoff=0)
 about_menu.add_command(label="Website", command=web)
 about_menu.add_command(label="About", command=about)
 
+menu.add_command(label="|", activebackground=menu.cget("background"))
 menu.add_cascade(label='File', menu=file_menu)
 menu.add_cascade(label='Edit', menu=edit_menu)
 menu.add_cascade(label='Theme', menu=theme_menu)
