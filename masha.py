@@ -55,7 +55,7 @@ def openfile(*e):
         input_text_area.insert("end-1c", fileinput)
         root.title(filename + " - Masha")
         lent.set(len(input_text_area.get("1.0", tk.END)))
-        menu.entryconfig(7, label="Lenght :" + str(lent.get()))
+        menu.entryconfig(8, label="Lenght :" + str(lent.get()))
 
 
 def openfile_(filename2):
@@ -70,7 +70,7 @@ def openfile_(filename2):
     input_text_area.insert("end-1c", fileinput)
     root.title(filename + " - Masha")
     lent.set(len(input_text_area.get("1.0", tk.END)))
-    menu.entryconfig(7, label="Lenght :" + str(lent.get()))
+    menu.entryconfig(8, label="Lenght :" + str(lent.get()))
 
 
 def savefile(*e):
@@ -123,7 +123,7 @@ def saveasfile(*e):
 def unsaved(event=None):
     root.title(filename + " - Masha *")
     lent.set(len(input_text_area.get("1.0", tk.END)))
-    menu.entryconfig(7, label="Lenght :" + str(lent.get()))
+    menu.entryconfig(8, label="Lenght :" + str(lent.get()))
 
 
 def plus(*e):
