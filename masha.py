@@ -20,19 +20,19 @@ if sys.platform == "linux":
     print('Please install libnotify for normal work: "sudo apt install libnotify"')
 
 print(os.path.dirname(__file__))
-os.chdir(os.path.dirname(__file__))
+# os.chdir(os.path.dirname(__file__))
 
-from notifypy import Notify
+# from notifypy import Notify
 
 
 
-def send_not(title, message):
-    notification = Notify()
-    notification.title = title
-    notification.message = message
-    notification.icon = "masha.png"
-
-    notification.send()
+# def send_not(title, message):
+#     notification = Notify()
+#     notification.title = title
+#     notification.message = message
+#     notification.icon = "masha.png"
+#
+#     notification.send()
 
 def getinput():
     global fileinput
@@ -83,7 +83,7 @@ def savefile(*e):
         file = open(filename, "w")
         file.write(fileinput)
         file.close()
-        send_not("Masha", "File Saved!")
+        # send_not("Masha", "File Saved!")
     else:
         filename = filedialog.asksaveasfilename(title="Save")
         if filename != "":
@@ -91,7 +91,7 @@ def savefile(*e):
             file = open(filename, "w")
             file.write(fileinput)
             file.close()
-            send_not("Masha", "File Saved!")
+            # send_not("Masha", "File Saved!")
 
 
 def newfile(*e):
