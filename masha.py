@@ -303,8 +303,8 @@ menu = tk.Menu(root)
 
 root.config(menu=menu)
 
-root.bind("<Prior>", plus)
-root.bind("<Next>", minus)
+root.bind("<Control-Key-1>", plus)
+root.bind("<Control-Key-2>", minus)
 root.bind('<Control-s>', savefile)
 root.bind('<Control-MouseWheel>', pm)
 root.bind('<Control-d>', saveasfile)
@@ -354,8 +354,8 @@ edit_menu.add_command(label='Select All', underline=7, accelerator='Ctrl+A', com
 
 theme_menu = tk.Menu(menu, tearoff=0)
 
-theme_menu.add_command(label="Zoom in", command=maria)
-theme_menu.add_command(label="Zoom out", command=maria)
+theme_menu.add_command(label="Zoom in", command=plus)
+theme_menu.add_command(label="Zoom out", command=minus)
 theme_menu.add_separator()
 theme_menu.add_command(label="Font", command=maria)
 dark = tk.IntVar(root, 1)
