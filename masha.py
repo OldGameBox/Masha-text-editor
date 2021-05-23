@@ -8,22 +8,37 @@ import random
 
 filename = ""
 fileinput = ""
-fontsize = 10
-fontt="Arial"
+fontsize = 12
+fontt = "Arial"
 
-bg = "#ffffff"
+colors = {
+    "voids": "lightgreen",
+    "types": "blue",
+    "sym": "red",
+    "iff": "orange"
+}
+
+voids = ["public ", "global ", "static ", "private ", "override ", 'import ']
+types = ["int", "float", "string", "char", "bool", "boolean", "double", "long"]
+iff = ["if ", "else", "elif ", "for ", "until ", "case ", "witch ", "in"]
+sym = ["=", "-", "+", "*", "/", "!", ">", "<", "&", "|", "(", ")", "%",
+       "^", "{", "}", ":", "'", '"', "[", "]", ";"]
+
+bg = "#f7e9c1"
 fg = "#000000"
 
-if "python" in sys.argv[0]:
-    os.system("pip install notify-py")
-if sys.platform == "linux":
-    print('Please install libnotify for normal work: "sudo apt install libnotify"')
 
-print(os.path.dirname(__file__))
+# if "python" in sys.argv[0]:
+#     os.system("pip install notify-py")
+# if sys.platform == "linux":
+#     print('Please install libnotify for normal work: "sudo apt install libnotify"')
+
+# print(os.path.dirname(__file__))
+
+
 # os.chdir(os.path.dirname(__file__))
 
 # from notifypy import Notify
-
 
 
 # def send_not(title, message):
@@ -37,6 +52,7 @@ print(os.path.dirname(__file__))
 def getinput():
     global fileinput
     fileinput = input_text_area.get("1.0", 'end-1c')
+
 
 
 def openfile(*e):
@@ -56,6 +72,7 @@ def openfile(*e):
         root.title(filename + " - Masha")
         lent.set(len(input_text_area.get("1.0", tk.END)))
         menu.entryconfig(8, label="Lenght :" + str(lent.get()))
+        analiz()
 
 
 def openfile_(filename2):
@@ -71,6 +88,7 @@ def openfile_(filename2):
     root.title(filename + " - Masha")
     lent.set(len(input_text_area.get("1.0", tk.END)))
     menu.entryconfig(8, label="Lenght :" + str(lent.get()))
+    analiz()
 
 
 def savefile(*e):
@@ -121,10 +139,29 @@ def saveasfile(*e):
 
 
 def unsaved(event=None):
-    root.title(filename + " - Masha *")
-    lent.set(len(input_text_area.get("1.0", tk.END)))
-    menu.entryconfig(8, label="Lenght :" + str(lent.get()))
+    global fileinput
+    if fileinput != input_text_area.get("1.0", 'end-1c'):
+        root.title(filename + " - Masha *")
+        lent.set(len(input_text_area.get("1.0", tk.END)))
+        menu.entryconfig(8, label="Lenght :" + str(lent.get()))
+        analiz()
+    else:
+        root.title(filename + " - Masha")
 
+
+def analiz():
+    input_text_area.tag_delete("iff")
+    for element in range(len(iff)):
+        highlight(iff[element], "iff")
+    input_text_area.tag_delete("sym")
+    for element in range(len(sym)):
+        highlight(sym[element], "sym")
+    input_text_area.tag_delete("voids")
+    for element in range(len(voids)):
+        highlight(voids[element], "voids")
+    input_text_area.tag_delete("types")
+    for element in range(len(types)):
+        highlight(types[element], "types")
 
 def plus(*e):
     global fontsize
@@ -161,7 +198,7 @@ def select_all(event=None):
 
 def copy_lenght(event=None):
     root.clipboard_clear()
-    root.clipboard_append(len(fileinput))
+    root.clipboard_append(lent.get())
 
 
 def web(event=None):
@@ -187,6 +224,7 @@ def maria(event=None):
     menu.entryconfig(5, font=(fontt, 12))
     menu.entryconfig(6, font=(fontt, 12))
     menu.entryconfig(7, font=(fontt, 12))
+    menu.entryconfig(8, font=(fontt, 12))
     input_text_area.configure(font=(fontt, fontsize))
 
 
@@ -223,12 +261,33 @@ def change_theme(event=None):
         menu.configure(bg=fg, fg=bg)
         scrollbar.configure(bg=fg)
         scrollbar2.configure(bg=fg)
-
+        menu.entryconfig(1, activebackground=menu.cget("background"))
+        menu.entryconfig(2, activebackground=menu.cget("background"))
+        menu.entryconfig(7, activebackground=menu.cget("background"))
+        input_text_area.configure(insertbackground=bg)
     else:
         input_text_area.configure(bg=bg, fg=fg)
         menu.configure(bg=bg, fg=fg)
         scrollbar.configure(bg=bg)
         scrollbar2.configure(bg=bg)
+        menu.entryconfig(1, activebackground=menu.cget("background"))
+        menu.entryconfig(2, activebackground=menu.cget("background"))
+        menu.entryconfig(7, activebackground=menu.cget("background"))
+        input_text_area.configure(insertbackground=fg)
+
+
+def highlight(seq, highlight):
+    global input_text_area
+    i = len(seq)
+    index = "1.0"
+
+    while True:
+        index = input_text_area.search(seq, index, nocase=1, stopindex='end', exact=False)
+        if not index: break
+        index2 = "%s+%dc" % (index, i)
+        input_text_area.tag_add(highlight, index, index2)
+        input_text_area.tag_config(highlight, foreground=colors[highlight])
+        index = index2
 
 
 
@@ -258,10 +317,11 @@ scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 scrollbar2 = tk.Scrollbar(root, orient="horizontal")
 scrollbar2.pack(side=tk.BOTTOM, fill=tk.X)
 
-input_text_area = tk.Text(root, font=("Arial", 10), undo=True, autoseparators=True, maxundo=-1,
+input_text_area = tk.Text(root, font=("Arial", fontsize), undo=True, autoseparators=True, maxundo=-1,
                           yscrollcommand=scrollbar.set,
                           xscrollcommand=scrollbar2.set,
                           wrap="none")
+input_text_area.configure(insertbackground=fg)
 scrollbar.config(command=input_text_area.yview)
 scrollbar2.config(command=input_text_area.xview)
 input_text_area.pack(expand=True, fill='both')
@@ -272,7 +332,7 @@ input_text_area.bind("<BackSpace>", back)
 root.grid_columnconfigure(0, weight=1)
 root.grid_rowconfigure(0, weight=1)
 
-menu.add_command(label="Masha", font='Arial 12 bold')
+menu.add_command(label="Masha", font='Arial 12 bold', activebackground=menu.cget("background"))
 
 file_menu = tk.Menu(menu, tearoff=0)
 file_menu.add_command(label="New", accelerator="Ctrl+N", command=newfile)
@@ -293,9 +353,13 @@ edit_menu.add_separator()
 edit_menu.add_command(label='Select All', underline=7, accelerator='Ctrl+A', command=select_all)
 
 theme_menu = tk.Menu(menu, tearoff=0)
-theme_menu.add_command(label="Font", command=maria)
-dark = tk.IntVar(root,0)
 
+theme_menu.add_command(label="Zoom in", command=maria)
+theme_menu.add_command(label="Zoom out", command=maria)
+theme_menu.add_separator()
+theme_menu.add_command(label="Font", command=maria)
+dark = tk.IntVar(root, 1)
+change_theme()
 theme_menu.add_checkbutton(label="DarkMode", onvalue=1, offvalue=0, variable=dark, command=change_theme)
 
 about_menu = tk.Menu(menu, tearoff=0)
@@ -305,7 +369,7 @@ about_menu.add_command(label="About", command=about)
 menu.add_command(label="|", activebackground=menu.cget("background"))
 menu.add_cascade(label='File', menu=file_menu)
 menu.add_cascade(label='Edit', menu=edit_menu)
-menu.add_cascade(label='Theme', menu=theme_menu)
+menu.add_cascade(label='Appearance', menu=theme_menu)
 menu.add_cascade(label='About', menu=about_menu)
 menu.add_command(label="|", activebackground=menu.cget("background"))
 
@@ -320,4 +384,5 @@ if len(sys.argv) != 1:
     else:
         if len(sys.argv) > 2:
             openfile_(sys.argv[len(sys.argv) - 1])
+
 root.mainloop()
