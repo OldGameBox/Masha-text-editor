@@ -1,3 +1,4 @@
+import subprocess
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -29,27 +30,19 @@ sym = ["=", "-", "+", "*", "/", "!", ">", "<", "&", "|", "(", ")", "%",
 bg = "#f7e9c1"
 fg = "#000000"
 
-
-# if "python" in sys.argv[0]:
-#     os.system("pip install notify-py")
-# if sys.platform == "linux":
-#     print('Please install libnotify for normal work: "sudo apt install libnotify"')
-
-# print(os.path.dirname(__file__))
+from pynotifier import Notification
+import platform
+if platform.system() == "Linux":
+    print("Install libnotify-bin, please.")
 
 
-# os.chdir(os.path.dirname(__file__))
-
-# from notifypy import Notify
-
-
-# def send_not(title, message):
-#     notification = Notify()
-#     notification.title = title
-#     notification.message = message
-#     notification.icon = "masha.png"
-#
-#     notification.send()
+def send_not(title, message):
+    Notification(
+        title=title,
+        description=message,
+        duration=3,  # Duration in seconds
+        urgency='normal'
+    ).send()
 
 def getinput():
     global fileinput
@@ -103,7 +96,7 @@ def savefile(*e):
         file = open(filename, "w")
         file.write(fileinput)
         file.close()
-        # send_not("Masha", "File Saved!")
+        send_not("Masha", "File Saved!")
     else:
         filename = filedialog.asksaveasfilename(title="Save")
         if filename != "":
@@ -111,7 +104,7 @@ def savefile(*e):
             file = open(filename, "w")
             file.write(fileinput)
             file.close()
-            # send_not("Masha", "File Saved!")
+            send_not("Masha", "File Saved!")
 
 
 def newfile(*e):
@@ -153,17 +146,18 @@ def unsaved(event=None):
 
 def analiz():
     input_text_area.tag_delete("iff")
-    for element in range(len(iff)):
-        highlight(iff[element], "iff")
     input_text_area.tag_delete("sym")
-    for element in range(len(sym)):
-        highlight(sym[element], "sym")
     input_text_area.tag_delete("voids")
-    for element in range(len(voids)):
-        highlight(voids[element], "voids")
     input_text_area.tag_delete("types")
-    for element in range(len(types)):
-        highlight(types[element], "types")
+    if high.get() == 1:
+        for element in range(len(iff)):
+            highlight(iff[element], "iff")
+        for element in range(len(sym)):
+            highlight(sym[element], "sym")
+        for element in range(len(voids)):
+            highlight(voids[element], "voids")
+        for element in range(len(types)):
+            highlight(types[element], "types")
 
 def plus(*e):
     global fontsize
@@ -291,14 +285,26 @@ def highlight(seq, highlight):
         input_text_area.tag_config(highlight, foreground=colors[highlight])
         index = index2
 
+def ch_tm(event):
+    if dark.get() == 1:
+        dark.set(0)
+    else:
+        dark.set(1)
+    change_theme(event)
 
+def ana(event):
+    if high.get() == 1:
+        high.set(0)
+    else:
+        high.set(1)
+    analiz()
 
 root = tk.Tk()
 root.title("Masha")
 root.geometry("650x500")
 root.minsize(300, 150)
 
-
+high = tk.IntVar(root, 1)
 fonts = font.families()
 
 menu = tk.Menu(root)
@@ -313,6 +319,9 @@ root.bind('<Control-d>', saveasfile)
 root.bind('<Control-o>', openfile)
 root.bind('<Control-n>', newfile)
 root.bind('<Control-e>', exitc)
+root.bind('<Control-f>', ch_tm)
+root.bind('<Control-a>', ana)
+root.bind('<Control-M>', maria)
 
 scrollbar = tk.Scrollbar(root)
 scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
@@ -334,7 +343,7 @@ input_text_area.bind("<BackSpace>", back)
 root.grid_columnconfigure(0, weight=1)
 root.grid_rowconfigure(0, weight=1)
 
-menu.add_command(label="Masha", font='Arial 12 bold', activebackground=menu.cget("background"))
+menu.add_command(label="Masha", font=(fontt, 12), activebackground=menu.cget("background"))
 
 file_menu = tk.Menu(menu, tearoff=0)
 file_menu.add_command(label="New", accelerator="Ctrl+N", command=newfile)
@@ -354,30 +363,39 @@ edit_menu.add_command(label="Paste", accelerator="Ctrl+V", command=lambda: root.
 edit_menu.add_separator()
 edit_menu.add_command(label='Select All', underline=7, accelerator='Ctrl+A', command=select_all)
 
+# font_menu = tk.Menu(menu, tearoff=0)
+#
+# for font in fonts:
+#     font_index = fonts.index(font)
+#     print(font_index)
+#     font_menu.add_command(label=font, command=lambda: maria(font_index))
+
 theme_menu = tk.Menu(menu, tearoff=0)
 
-theme_menu.add_command(label="Zoom in", command=plus)
-theme_menu.add_command(label="Zoom out", command=minus)
+theme_menu.add_command(label="Zoom in", accelerator="Ctrl+1", command=plus)
+theme_menu.add_command(label="Zoom out", accelerator="Ctrl+2", command=minus)
 theme_menu.add_separator()
-theme_menu.add_command(label="Font", command=maria)
+# theme_menu.add_cascade(label="Fonts", menu=font_menu)
+theme_menu.add_command(label="Font", accelerator="Ctrl+Shift+M", command=maria)
 dark = tk.IntVar(root, 1)
 change_theme()
-theme_menu.add_checkbutton(label="DarkMode", onvalue=1, offvalue=0, variable=dark, command=change_theme)
+theme_menu.add_checkbutton(label="DarkMode", accelerator="Ctrl+F", onvalue=1, offvalue=0, variable=dark, command=change_theme)
+theme_menu.add_checkbutton(label="Analyze", accelerator="Ctrl+A", onvalue=1, offvalue=0, variable=high, command=analiz)
 
 about_menu = tk.Menu(menu, tearoff=0)
 about_menu.add_command(label="Website", command=web)
 about_menu.add_command(label="About", command=about)
 
-menu.add_command(label="|", activebackground=menu.cget("background"))
-menu.add_cascade(label='File', menu=file_menu)
-menu.add_cascade(label='Edit', menu=edit_menu)
-menu.add_cascade(label='Appearance', menu=theme_menu)
-menu.add_cascade(label='About', menu=about_menu)
-menu.add_command(label="|", activebackground=menu.cget("background"))
+menu.add_command(label="|", activebackground=menu.cget("background"), font=(fontt, 12))
+menu.add_cascade(label='File', menu=file_menu, font=(fontt, 12))
+menu.add_cascade(label='Edit', menu=edit_menu, font=(fontt, 12))
+menu.add_cascade(label='Appearance', menu=theme_menu, font=(fontt, 12))
+menu.add_cascade(label='About', menu=about_menu, font=(fontt, 12))
+menu.add_command(label="|", activebackground=menu.cget("background"), font=(fontt, 12))
 
 lent = tk.IntVar(root, 0)
 root.bind('<KeyPress>', unsaved)
-menu.add_command(label="Lenght :" + str(lent.get()), command=copy_lenght)
+menu.add_command(label="Lenght :" + str(lent.get()), command=copy_lenght, font=(fontt, 12))
 
 if len(sys.argv) != 1:
     if not "python" in sys.argv[0]:
